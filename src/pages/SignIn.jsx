@@ -1,14 +1,18 @@
 import React from 'react';
 import { useState } from 'react';
 import { AiFillEyeInvisible , AiFillEye} from 'react-icons/ai';
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import OAuth from '../components/OAuth';
+import { useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 
 export default function SignIn() {
   const [formData, setFormData] = useState({
     email : '',
     password : '',
   });
+
+  const navigate = useNavigate();
 
   const {email,password} = formData;
 
@@ -19,6 +23,21 @@ export default function SignIn() {
 
     }))
   };
+
+  const onSubmit = async (e)=>{
+    e.preventDefault();
+    try {
+      const auth = getAuth();
+      const userCredential = await
+      signInWithEmailAndPassword(auth, email, password)
+      if (userCredential.user){
+        navigate("/");
+      }
+      
+    } catch (error) {
+      
+    }
+  }
 
   const [showPassword,setShowPassword] = useState(false);
 
@@ -40,7 +59,7 @@ export default function SignIn() {
         
         <div className="w-full md:w-[67%] lg:w-[40%] lg:ml-20">
           
-          <form>
+          <form onSubmit={onSubmit}>
             <div className='mb-6'>
             <input className='w-full px-4 py-2 text-gray-700 bg-white border-gray-300 
             rounded transition ease-in-out' 
