@@ -1,15 +1,24 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { getAuth, updateProfile  } from 'firebase/auth';
 import { toast } from "react-toastify";
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, 
+  getDocs, 
+  updateDoc, 
+  collection,
+  deleteDoc,
+  orderBy,
+  query,
+  where } from 'firebase/firestore';
 import {db} from "../firebase";
 import {FcHome} from "react-icons/fc"
-import {Link} from "react-router-dom"
+import ListingItem from '../components/ListingItem';
 
 export default function Profile() {
   const auth = getAuth();
   const [changeDetail, setChangeDetail] = useState(false);
+  const [listings, setListings] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: auth.currentUser.displayName,
@@ -45,7 +54,32 @@ export default function Profile() {
         console.error(error)
         toast.error("Could not update profile details")
     }
-}
+
+  }
+
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      const listingRef = collection(db, "listings");
+      const q = query(
+        listingRef,
+        where("userRef", "==", auth.currentUser.uid),
+        orderBy("timestamp", "desc")
+      );
+      const querySnap = await getDocs(q);
+      let listings = [];
+      querySnap.forEach((doc) => {
+        return listings.push({
+          id: doc.id,
+          data: doc.data(),
+        });
+      });
+      setListings(listings);
+      setLoading(false);
+    };
+  
+    fetchUserListings();
+  }, [auth.currentUser.uid]);
+
 
 return (
     <>
@@ -59,7 +93,7 @@ return (
           <input 
           onChange={onChange}
           type='text' id='name' value={name} 
-          display={!changeDetail}
+          hidden={!changeDetail}
           className={`mb-6 w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300
           rounded transition ease-in-out
           ${changeDetail ? "bg-red-200 focus:bg-red-200" : ""}`}>
@@ -98,6 +132,25 @@ return (
 
       </div>
     </section>
+    
+    <div className="max-w-6xl px-3 mt-6 mx-auto">
+      {!loading && listings.length > 0 && (
+        <>
+        <h2 className='text-2xl text-center font-semibold'>My Listings</h2>
+        <ul>
+          {listings.map((listing)=>(
+            <ListingItem
+            key={listing.id}
+            id={listing.id}
+            listing={listing.data}
+            />
+          ))}
+        </ul>
+        </>
+      )}
+    </div>
+   
+   
     </>
   )
 }
