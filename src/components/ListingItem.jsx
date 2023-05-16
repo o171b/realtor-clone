@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { DateTime } from "luxon";
 import { MdLocationOn } from 'react-icons/md';
+import { FaEdit, FaTrash } from 'react-icons/fa';
+import { MdEdit } from 'react-icons/md';
 
-export default function ListingItem({listing,id}) {
+export default function ListingItem({listing,id,onEdit, onDelete}) {
   const datetime = DateTime.fromJSDate(listing.timestamp.toDate());
   const diff = datetime.diffNow(['days', 'hours']).toObject(); //from luxon package
   let formattedDate = '';
@@ -56,6 +58,15 @@ export default function ListingItem({listing,id}) {
              
           </div>
       </Link>
+      {onDelete && (
+      <FaTrash className='absolute bottom-2 right-2 h-[14px] cursor-pointer
+      text-red-500' 
+      onClick = {()=>onDelete(listing.id)}
+      />)}
+      {onEdit && (
+        <FaEdit className='absolute bottom-2 right-7 h-[14px] cursor-pointer'
+        onClick = {()=>onEdit(listing.id)}
+         />)}
     </li>
   );
 }

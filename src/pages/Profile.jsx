@@ -13,6 +13,7 @@ import { doc,
 import {db} from "../firebase";
 import {FcHome} from "react-icons/fc"
 import ListingItem from '../components/ListingItem';
+import { list } from 'postcss';
 
 export default function Profile() {
   const auth = getAuth();
@@ -80,6 +81,22 @@ export default function Profile() {
     fetchUserListings();
   }, [auth.currentUser.uid]);
 
+  const onDelete = async (listingID)=>{
+    if(window.confirm("Are you sure you want to Delete? ")) {
+      await deleteDoc(doc(db, "listings", listingID));
+      const updatedListings = listings.filter(
+        (listing)=> listing.id !== listingID
+      );
+      setListings(updatedListings);
+      toast.success("Successfully deleted the listing");
+    }
+  };
+
+  const onEdit = (listingID)=>{
+    navigate(`/edit-listing/${listingID}`);
+
+  };
+
 
 return (
     <>
@@ -144,6 +161,8 @@ return (
             key={listing.id}
             id={listing.id}
             listing={listing.data}
+            onDelete={()=>onDelete(listing.id)}
+            onEdit={()=>onEdit(listing.id)}
             />
           ))}
         </ul>
