@@ -60,7 +60,7 @@ export default function ListingItem({listing,id,onEdit, onDelete}) {
       </Link>
       {onDelete && (
       <FaTrash className='absolute bottom-2 right-2 h-[14px] cursor-pointer
-      text-red-500' 
+      text-blue-500' 
       onClick = {()=>onDelete(listing.id)}
       />)}
       {onEdit && (
