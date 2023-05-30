@@ -1,0 +1,1 @@
+when you deploy the web app one thing you'll notice that you wont be able to login with google. go to `Authentication` and click on `settings` and click on `authorized domains` and add the domain of your website
